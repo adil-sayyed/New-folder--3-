@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Scanner</title>
+    <style>
+        button {
+            margin: 5px;
+            padding: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: left;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function fillForm(button) {
+            var row = button.closest('tr');
+            var cells = row.getElementsByTagName('td');
+            
+            document.getElementById('product_name').value = cells[1].innerText;
+            document.getElementById('salt_composition').value = cells[2].innerText;
+            document.getElementById('product_price').value = cells[3].innerText.replace('₹', '');
+            document.getElementById('product_manufactured').value = cells[4].innerText;
+            // document.getElementById('medicine_desc').value = cells[5].innerText;
+            // document.getElementById('side_effects').value = cells[6].innerText;
+            
+            document.getElementById('editForm').classList.remove('hidden');
+        }
+    </script>
+</head>
+<body>
+
+    
+    <div>
+        <h2>Upload an Image</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button onclick="window.location.href='/?reset=true'" style="width: 200px;">Reset</button>
+            <button type="capture" style="width: 200px;">Capture</button>
+            <button type="submit" style="width: 200px;">Upload</button>
+        </form>
+        
+        <h2>Upload an Image</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button onclick="window.location.href='/?reset=true'" style="width: 200px;">Reset</button>
+            <button type="capture" style="width: 200px;">Capture</button>
+            <button type="submit" style="width: 200px;">Upload</button>
+        </form>
+    </div>
+    
+    
+
+    {% if uploaded_image_url %}
+    <div class="fixed-image">
+        <h3>Uploaded Image:</h3>
+        <img src="{{ uploaded_image_url }}" alt="Uploaded Image" class="img-fluid" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; padding: 5px;">
+    </div>
+    {% endif %}
+    {% if scanned_text %}
+
+    <div>
+        <h3>Drop-down</h3>
+        <select name="" id="">
+            <option value="">Select Anyone</option>
+            <option value="">Notepad</option>
+            <option value="">Webform</option>
+            <option value="">Excel</option>
+            <option value="">API</option>
+        </select>
+    </div>
+
+    <h3>Select Your Medicine:</h3>
+    <div>
+        {% for word in scanned_text %}
+            <form action="{% url 'upload_image' %}" method="GET" style="display:inline;">
+                <input type="hidden" name="search_word" value="{{ word }}">
+                <button type="submit">{{ word }}</button>
+            </form>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if medicine_info %}
+    <div id="editForm" class="hidden">
+        <h3>Edit and submit your medicine</h3>
+        <form method="post">
+            {% csrf_token %}
+            <label>Name:</label> <input type="text" id="product_name" name="product_name"><br>
+            <label>Salt Composition:</label> <input type="text" id="salt_composition" name="salt_composition"><br>
+            <label>Product Price:</label> <input type="text" id="product_price" name="product_price"><br>
+            <label>Manufacturer:</label> <input type="text" id="product_manufactured" name="product_manufactured"><br>
+            <!-- <label>Description:</label> <input type="text" id="medicine_desc" name="medicine_desc"><br>
+            <label>Side Effects:</label> <input type="text" id="side_effects" name="side_effects"><br> -->
+            <button type="submit">Save</button>
+        </form>
+    </div>
+    
+    <h3>Select Exact Medicine:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Name</th>
+                <th>Salt Composition</th>
+                <th>Product Price</th>
+                <th>Manufacturer</th>
+                <!-- <th>Description</th>
+                <th>Side Effects</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for med in medicine_info %}
+            <tr>
+                <td><button onclick="fillForm(this)">Select</button></td>
+                <td>{{ med.product_name }}</td>
+                <td>{{ med.salt_composition }}</td>
+                <td>{{ med.product_price }}</td>
+                <td>{{ med.product_manufactured }}</td>
+                <!-- <td>{{ med.medicine_desc }}</td>
+                <td>{{ med.side_effects }}</td> -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</body>
+</html>
